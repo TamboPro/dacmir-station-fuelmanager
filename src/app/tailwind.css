@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme {
+  /* Couleurs principales Dacmir */
+  --color-dacmir-primary: #33a2e5;
+  --color-dacmir-primary-dark: #1c96e0;
+  --color-dacmir-primary-light: #58b3ea;
+  
+  /* Couleurs de l'interface */
+  --color-dacmir-background: #131416;
+  --color-dacmir-surface: #202226;
+  --color-dacmir-border: #2c3235;
+  --color-dacmir-text: #c7d0d9;
+  --color-dacmir-muted: #8e9297;
+}
+
+/* Styles de base */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}

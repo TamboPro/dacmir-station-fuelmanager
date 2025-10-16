@@ -1,11 +1,11 @@
-import type { Metadata } from 'next'
+'use client'
+
 import './tailwind.css'
 import './globals.css'
 
-export const metadata: Metadata = {
-  title: 'Dacmir Station Fuel Manager',
-  description: 'Interface de gestion de station-service Dacmir',
-}
+
+import { Provider } from 'react-redux'
+import { store } from '@/store/store' // Update the path to your actual store file
 
 export default function RootLayout({
   children,
@@ -15,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className="h-full">
-        {children}
+        <Provider store={store}>
+          {children}
+        </Provider>
       </body>
     </html>
   )

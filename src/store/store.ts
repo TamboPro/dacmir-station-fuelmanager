@@ -157,14 +157,14 @@ const stationDataSlice = createSlice({
   name: 'stationData',
   initialState: {
     fuels: {
-      essence1: 450,
-      essence2: 250,
-      petrol: 1500,
-      gazoil: 1200
+      essence1: 11500,
+      essence2: 4500,
+      petrol: 19500,
+      gazoil: 1500
     },
     pumps: {
-      pompe1: 45,
-      pompe2: 67,
+      pompe1: 0,
+      pompe2: 0,
       pompe3: 89,
       pompe4: 23
     },

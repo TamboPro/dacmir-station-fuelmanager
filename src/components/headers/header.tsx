@@ -1,12 +1,12 @@
 'use client';
 
-import { 
-  UserCircle, 
-  Search, 
-  RefreshCw, 
-  X, 
-  Wifi, 
-  WifiOff, 
+import {
+  UserCircle,
+  Search,
+  RefreshCw,
+  X,
+  Wifi,
+  WifiOff,
   CloudCog,
   Server,
   Database,
@@ -15,11 +15,14 @@ import {
   Circle
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import Image from 'next/image';
+import { RootState } from '@/store/store';
+import { useMqttActions } from '@/hooks/useMqttActions';
 
 interface HeaderProps {
   title: string;
-  
+
   theme: 'light' | 'dark';
   setTheme: (theme: 'light' | 'dark') => void;
   stationName?: string;
@@ -29,10 +32,10 @@ interface HeaderProps {
   className?: string;
 }
 
-export default function Header({ 
-  title, 
-  
-  theme, 
+export default function Header({
+  title,
+
+  theme,
   setTheme,
   stationName = 'PETROLEX Bonaberi',
   onStationSearch,
@@ -47,14 +50,12 @@ export default function Header({
   const [showCameroon, setShowCameroon] = useState(false);
   const [selectedStation, setSelectedStation] = useState(stationName);
   const [showMqttStats, setShowMqttStats] = useState(false);
-  
-  // États MQTT simulés (à remplacer par vos vrais états Redux si nécessaire)
-  const [mqttStatus, setMqttStatus] = useState<'connected' | 'connecting' | 'error' | 'disconnected'>('disconnected');
-  const [mqttStats, setMqttStats] = useState({
-    messagesSent: 0,
-    messagesReceived: 0,
-    lastMessageTimestamp: null as number | null
-  });
+
+  // Sélecteurs Redux pour l'état MQTT synchronisé
+  const connection = useSelector((state: RootState) => state.connection);
+
+  // Hook MQTT pour les actions de connexion/déconnexion
+  const { connectMqtt, disconnectMqtt } = useMqttActions();
 
   const searchRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
@@ -134,29 +135,18 @@ export default function Header({
     setSelectedStation(event.target.value);
   };
 
-  // Gestion des actions MQTT simulées
+  // Gestion des actions MQTT
   const handleMqttAction = () => {
-    if (mqttStatus === 'connected') {
-      // Simuler la déconnexion
-      setMqttStatus('disconnected');
-      setMqttStats(prev => ({ ...prev, lastMessageTimestamp: Date.now() }));
+    if (connection.isConnected) {
+      disconnectMqtt();
     } else {
-      // Simuler la connexion
-      setMqttStatus('connecting');
-      setTimeout(() => {
-        setMqttStatus('connected');
-        setMqttStats(prev => ({ 
-          ...prev, 
-          messagesSent: prev.messagesSent + 1,
-          lastMessageTimestamp: Date.now()
-        }));
-      }, 2000);
+      connectMqtt();
     }
   };
 
   // Obtenir la classe CSS en fonction du statut MQTT
   const getMqttStatusClass = () => {
-    switch (mqttStatus) {
+    switch (connection.connectionStatus) {
       case 'connected': return 'bg-green-600 hover:bg-green-700';
       case 'connecting': return 'bg-yellow-600 hover:bg-yellow-700 animate-pulse';
       case 'error': return 'bg-red-600 hover:bg-red-700';
@@ -166,7 +156,7 @@ export default function Header({
 
   // Obtenir l'icône en fonction du statut MQTT
   const getMqttIcon = () => {
-    switch (mqttStatus) {
+    switch (connection.connectionStatus) {
       case 'connected': return <Wifi className="w-3 h-3" />;
       case 'connecting': return <RefreshCw className="w-3 h-3 animate-spin" />;
       case 'error': return <WifiOff className="w-3 h-3" />;
@@ -176,7 +166,7 @@ export default function Header({
 
   // Obtenir le texte en fonction du statut MQTT
   const getMqttText = () => {
-    switch (mqttStatus) {
+    switch (connection.connectionStatus) {
       case 'connected': return 'Connecté';
       case 'connecting': return 'Connexion...';
       case 'error': return 'Erreur';
@@ -222,9 +212,9 @@ export default function Header({
             <span className="text-gray-300 font-semibold text-sm">DACMIR FUEL MANAGEMENT SYSTEM</span>
           </div>
         )}
-        
+
         <div className="h-4 w-px bg-gray-600"></div>
-        
+
         {/* Selectbox pour la station */}
         <select
           value={selectedStation}
@@ -259,41 +249,39 @@ export default function Header({
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-semibold text-white">Statut MQTT</h3>
                 <div className="flex items-center">
-                  <div className={`w-2 h-2 rounded-full mr-2 ${
-                    mqttStatus === 'connected' ? 'bg-green-400' : 
-                    mqttStatus === 'connecting' ? 'bg-yellow-400' : 
-                    mqttStatus === 'error' ? 'bg-red-400' : 'bg-gray-400'
-                  }`}></div>
+                  <div className={`w-2 h-2 rounded-full mr-2 ${connection.connectionStatus === 'connected' ? 'bg-green-400' :
+                      connection.connectionStatus === 'connecting' ? 'bg-yellow-400' :
+                        connection.connectionStatus === 'error' ? 'bg-red-400' : 'bg-gray-400'
+                    }`}></div>
                   <span className="text-xs text-gray-300">{getMqttText()}</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3 text-xs mb-3">
                 <div className="bg-gray-700 p-2 rounded text-center">
-                  <div className="font-bold text-white">{mqttStats.messagesSent}</div>
+                  <div className="font-bold text-white">{connection.connectionStats.messagesSent}</div>
                   <div className="text-gray-400">Messages envoyés</div>
                 </div>
                 <div className="bg-gray-700 p-2 rounded text-center">
-                  <div className="font-bold text-white">{mqttStats.messagesReceived}</div>
+                  <div className="font-bold text-white">{connection.connectionStats.messagesReceived}</div>
                   <div className="text-gray-400">Messages reçus</div>
                 </div>
               </div>
 
               <div className="text-xs text-gray-400 mb-3">
-                <div>Dernier message: {formatTimestamp(mqttStats.lastMessageTimestamp)}</div>
+                <div>Dernier message: {formatTimestamp(connection.connectionStats.lastMessageTimestamp)}</div>
                 <div>Broker: mqtt://localhost:1883</div>
               </div>
 
               <div className="flex gap-2">
                 <button
                   onClick={handleMqttAction}
-                  className={`flex-1 py-1.5 px-2 rounded text-xs font-medium ${
-                    mqttStatus === 'connected' 
-                      ? 'bg-red-500 hover:bg-red-600 text-white' 
+                  className={`flex-1 py-1.5 px-2 rounded text-xs font-medium ${connection.isConnected
+                      ? 'bg-red-500 hover:bg-red-600 text-white'
                       : 'bg-blue-500 hover:bg-blue-600 text-white'
-                  } transition-colors`}
+                    } transition-colors`}
                 >
-                  {mqttStatus === 'connected' ? 'Déconnecter' : 'Connecter'}
+                  {connection.isConnected ? 'Déconnecter' : 'Connecter'}
                 </button>
               </div>
             </div>
@@ -317,7 +305,7 @@ export default function Header({
               REST API
             </div>
           </div>
-          
+
           <div className="relative group">
             <Database className="w-4 h-4 text-green-400" />
             <div className="absolute invisible group-hover:visible bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-xs text-white rounded shadow-lg">

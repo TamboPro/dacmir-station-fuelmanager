@@ -87,7 +87,7 @@ const configSlice = createSlice({
     },
     updateTopic: (state, action: PayloadAction<{ id: string; field: keyof Topic; value: string | number | boolean }>) => {
       const { id, field, value } = action.payload
-      state.topics = state.topics.map(topic => 
+      state.topics = state.topics.map(topic =>
         topic.id === id ? { ...topic, [field]: value } : topic
       )
     },
@@ -227,32 +227,32 @@ export const store = configureStore({
 })
 
 // Export des actions
-export const { 
-  updateConfig, 
-  updateMqttAuth, 
-  updateTopic, 
-  addTopic, 
-  removeTopic 
+export const {
+  updateConfig,
+  updateMqttAuth,
+  updateTopic,
+  addTopic,
+  removeTopic
 } = configSlice.actions
 
-export const { 
-  setConnected, 
-  setConnecting, 
-  setConnectionError, 
-  addTestResult, 
-  clearTestResults, 
-  incrementMessagesSent, 
+export const {
+  setConnected,
+  setConnecting,
+  setConnectionError,
+  addTestResult,
+  clearTestResults,
+  incrementMessagesSent,
   incrementMessagesReceived,
   resetStats
 } = connectionSlice.actions
 
-export const { 
-  updateStationData, 
-  updateFuelData, 
+export const {
+  updateStationData,
+  updateFuelData,
   updatePumpData
 } = stationDataSlice.actions
 
-export const { 
+export const {
   updateCameraData,
   updateCamera1,
   updateCamera2
@@ -261,3 +261,6 @@ export const {
 // Types
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch
+
+
+/*{"station": "Station Principale","timestamp": "2026-03-10T14:30:45.123Z","fuels":{"essence1":742,"essence2":318,"petrol":1562,"gazoil":843},"pumps": {"pompe1": 67,"pompe2":23,"pompe3":89,"pompe4":41},"status":"online","temperature":31.456789,"humidity":68.123456,"pressure":1015.678901,"battery":94.567890,"uptime":89123,"version":"1.2.3"}*/

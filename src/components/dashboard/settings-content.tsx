@@ -4,9 +4,9 @@
 import { useState } from "react"
 import { useDispatch, useSelector } from 'react-redux'
 import { CloudCog, Server, Database, Save, Download } from "lucide-react"
-import { 
-  updateConfig, 
-  updateMqttAuth, 
+import {
+  updateConfig,
+  updateMqttAuth,
   addTestResult,
   RootState
 } from '@/store/store'
@@ -22,14 +22,39 @@ import GraphqlSettings from '@/components/settings/GraphqlSettings'
 // Import des hooks
 import { useMqttActions } from '@/hooks/useMqttActions'
 
+// JSON d'exemple pour l'initialisation
+const DEFAULT_TEST_JSON = {
+  station: "Station_Logbessou",
+  timestamp: new Date().toISOString(),
+  fuels: {
+    essence1: 12000,
+    essence2: 8500,
+    petrol: 18000,
+    gazoil: 15000
+  },
+  pumps: {
+    pompe1: 87,
+    pompe2: 45,
+    pompe3: 92,
+    pompe4: 62
+  },
+  status: "online",
+  temperature: 28.5,
+  humidity: 65.3,
+  pressure: 1013.25,
+  battery: 92.5,
+  uptime: 172800,
+  version: "1.2.3"
+}
+
 // Composant principal
 export default function SettingsPage() {
   const dispatch = useDispatch()
   const config = useSelector((state: RootState) => state.config)
   const connection = useSelector((state: RootState) => state.connection)
-  
+
   const [activeTab, setActiveTab] = useState('mqtt')
-  const [testMessage, setTestMessage] = useState('Message pour tester la liaison')
+  const [testMessage, setTestMessage] = useState(JSON.stringify(DEFAULT_TEST_JSON, null, 2))
 
   const { connectMqtt, sendTestMessage, disconnectMqtt } = useMqttActions()
 
@@ -69,7 +94,7 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-black text-[#c7d0d9]">
-      
+
 
       <div className="px-4 py-1 space-y-2">
         {/* Navigation par onglets */}
